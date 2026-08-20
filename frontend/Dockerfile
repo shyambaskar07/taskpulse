@@ -3,10 +3,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json tsconfig.json vite.config.ts tailwind.config.js postcss.config.js index.html ./
+COPY package*.json ./
 RUN npm ci
 
-COPY src ./src
+COPY . .
 RUN npm run build
 
 FROM nginx:alpine AS runner
