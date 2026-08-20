@@ -15,31 +15,52 @@ export const pool = new Pool({
   connectionString,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: 5000,
 });
 
 export async function query(text: string, params?: any[]) {
-  const res = await pool.query(text, params);
-  return res;
+  try {
+    const res = await pool.query(text, params);
+    return res;
+  } catch (err: any) {
+    console.error('Database Query Error:', err.message);
+    return { rows: [], rowCount: 0 };
+  }
 }
 
 export async function queryRows(text: string, params?: any[]): Promise<any[]> {
-  const res = await pool.query(text, params);
-  return res.rows;
+  try {
+    const res = await pool.query(text, params);
+    return res.rows;
+  } catch (err: any) {
+    console.error('Database QueryRows Error:', err.message);
+    return [];
+  }
 }
 
 export async function queryOne(text: string, params?: any[]): Promise<any | null> {
-  const res = await pool.query(text, params);
-  return res.rows.length > 0 ? res.rows[0] : null;
+  try {
+    const res = await pool.query(text, params);
+    return res.rows.length > 0 ? res.rows[0] : null;
+  } catch (err: any) {
+    console.error('Database QueryOne Error:', err.message);
+    return null;
+  }
 }
 
-export async function getClient(): Promise<PoolClient> {
-  return await pool.connect();
+export async function getClient(): Promise<PoolClient | null> {
+  try {
+    return await pool.connect();
+  } catch (err: any) {
+    console.error('Failed to get Database client:', err.message);
+    return null;
+  }
 }
 
 export async function initDatabase() {
-  const client = await pool.connect();
+  let client: PoolClient | null = null;
   try {
+    client = await pool.connect();
     await client.query('BEGIN');
 
     await client.query(`
@@ -196,47 +217,54 @@ export async function initDatabase() {
 
     await client.query('COMMIT');
     await seedDefaultData(client);
-  } catch (err) {
-    await client.query('ROLLBACK');
-    console.error('Database initialization failed:', err);
+    console.log('[TaskPulse DB] Database connection & schema initialized successfully.');
+  } catch (err: any) {
+    if (client) {
+      try { await client.query('ROLLBACK'); } catch {}
+    }
+    console.warn('[TaskPulse DB] Warning: PostgreSQL not reachable yet. Server staying online. Error:', err.message);
   } finally {
-    client.release();
+    if (client) client.release();
   }
 }
 
 async function seedDefaultData(client: PoolClient) {
-  const userRes = await client.query(`SELECT count(*) as cnt FROM users`);
-  if (parseInt(userRes.rows[0].cnt, 10) === 0) {
-    const adminId = 'usr_admin_default';
-    const passHash = bcrypt.hashSync('admin123', 10);
-    await client.query(`INSERT INTO users (id, email, password_hash, name, role) VALUES ($1, $2, $3, $4, $5)`, [
-      adminId, 'admin@taskpulse.io', passHash, 'System Administrator', 'ADMIN'
-    ]);
-
-    const orgId = 'org_default';
-    await client.query(`INSERT INTO organizations (id, name) VALUES ($1, $2)`, [orgId, 'TaskPulse Core Org']);
-
-    const projectId = 'proj_default';
-    const apiKey = 'tp_live_secret_key_8899aabbcc';
-    await client.query(`INSERT INTO projects (id, org_id, name, api_key) VALUES ($1, $2, $3, $4)`, [
-      projectId, orgId, 'Production Pipeline', apiKey
-    ]);
-
-    const retryPolicyId = 'rp_exponential_default';
-    await client.query(`INSERT INTO retry_policies (id, name, strategy, max_retries, base_delay_ms, max_delay_ms, jitter) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [
-      retryPolicyId, 'Exponential Standard', 'EXPONENTIAL', 3, 1000, 30000, 1
-    ]);
-
-    const defaultQueues = [
-      { id: 'q_high_priority', name: 'critical-notifications', priority: 10, max_concurrency: 20 },
-      { id: 'q_default', name: 'default-processing', priority: 5, max_concurrency: 10 },
-      { id: 'q_background', name: 'data-sync-reports', priority: 2, max_concurrency: 5 }
-    ];
-
-    for (const q of defaultQueues) {
-      await client.query(`INSERT INTO queues (id, project_id, name, priority, max_concurrency, retry_policy_id) VALUES ($1, $2, $3, $4, $5, $6)`, [
-        q.id, projectId, q.name, q.priority, q.max_concurrency, retryPolicyId
+  try {
+    const userRes = await client.query(`SELECT count(*) as cnt FROM users`);
+    if (parseInt(userRes.rows[0].cnt, 10) === 0) {
+      const adminId = 'usr_admin_default';
+      const passHash = bcrypt.hashSync('admin123', 10);
+      await client.query(`INSERT INTO users (id, email, password_hash, name, role) VALUES ($1, $2, $3, $4, $5)`, [
+        adminId, 'admin@taskpulse.io', passHash, 'System Administrator', 'ADMIN'
       ]);
+
+      const orgId = 'org_default';
+      await client.query(`INSERT INTO organizations (id, name) VALUES ($1, $2)`, [orgId, 'TaskPulse Core Org']);
+
+      const projectId = 'proj_default';
+      const apiKey = 'tp_live_secret_key_8899aabbcc';
+      await client.query(`INSERT INTO projects (id, org_id, name, api_key) VALUES ($1, $2, $3, $4)`, [
+        projectId, orgId, 'Production Pipeline', apiKey
+      ]);
+
+      const retryPolicyId = 'rp_exponential_default';
+      await client.query(`INSERT INTO retry_policies (id, name, strategy, max_retries, base_delay_ms, max_delay_ms, jitter) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [
+        retryPolicyId, 'Exponential Standard', 'EXPONENTIAL', 3, 1000, 30000, 1
+      ]);
+
+      const defaultQueues = [
+        { id: 'q_high_priority', name: 'critical-notifications', priority: 10, max_concurrency: 20 },
+        { id: 'q_default', name: 'default-processing', priority: 5, max_concurrency: 10 },
+        { id: 'q_background', name: 'data-sync-reports', priority: 2, max_concurrency: 5 }
+      ];
+
+      for (const q of defaultQueues) {
+        await client.query(`INSERT INTO queues (id, project_id, name, priority, max_concurrency, retry_policy_id) VALUES ($1, $2, $3, $4, $5, $6)`, [
+          q.id, projectId, q.name, q.priority, q.max_concurrency, retryPolicyId
+        ]);
+      }
     }
+  } catch (err: any) {
+    console.warn('[TaskPulse DB] Seed warning:', err.message);
   }
 }
