@@ -1,0 +1,54 @@
+# Render.com Infrastructure-as-Code (Blueprint) for TaskPulse
+services:
+  # 1. PostgreSQL Database Service
+  - type: postgres
+    name: taskpulse-db
+    plan: free
+    ipAllowList: [] # allow all internal render services
+
+  # 2. Backend REST API & WebSocket Server
+  - type: web
+    name: taskpulse-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskpulse-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+  # 3. Standalone Worker Service Node
+  - type: worker
+    name: taskpulse-worker
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm run worker
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: taskpulse-db
+          property: connectionString
+      - key: WORKER_CONCURRENCY
+        value: 5
+
+  # 4. Frontend Web Dashboard (Static Site)
+  - type: web
+    name: taskpulse-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
