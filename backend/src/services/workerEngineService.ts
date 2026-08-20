@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { getClient, query } from '../db/database';
 import { calculateRetryDelay } from '../utils/retryCalculator';
 import { generateAIFailureSummary } from '../utils/aiSummarizer';
@@ -86,8 +87,9 @@ export class WorkerEngine {
   }
 
   private async claimNextJobAtomic(): Promise<any | null> {
-    const client = await getClient();
+    let client: PoolClient | null = null;
     try {
+      client = await getClient();
       await client.query('BEGIN');
       const now = new Date().toISOString();
 
@@ -119,11 +121,12 @@ export class WorkerEngine {
       await client.query('COMMIT');
       return res.rows.length > 0 ? res.rows[0] : null;
     } catch (err) {
-      await client.query('ROLLBACK');
-      console.error('Error claiming job atomically in Postgres:', err);
+      if (client) {
+        try { await client.query('ROLLBACK'); } catch {}
+      }
       return null;
     } finally {
-      client.release();
+      if (client) client.release();
     }
   }
 
