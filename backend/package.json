@@ -4,7 +4,7 @@
   "description": "Production-inspired Distributed Job Scheduler Backend & Worker Engine (PostgreSQL)",
   "main": "dist/server.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "worker": "ts-node-dev --respawn --transpile-only src/workerRunner.ts",
