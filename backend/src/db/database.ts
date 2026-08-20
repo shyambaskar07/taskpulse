@@ -48,13 +48,8 @@ export async function queryOne(text: string, params?: any[]): Promise<any | null
   }
 }
 
-export async function getClient(): Promise<PoolClient | null> {
-  try {
-    return await pool.connect();
-  } catch (err: any) {
-    console.error('Failed to get Database client:', err.message);
-    return null;
-  }
+export async function getClient(): Promise<PoolClient> {
+  return await pool.connect();
 }
 
 export async function initDatabase() {
