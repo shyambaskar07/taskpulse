@@ -3,10 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install --ignore-scripts
-
 COPY . .
+RUN npm install
 RUN npm run build
 
 FROM nginx:alpine AS runner
