@@ -7,7 +7,7 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-RUN ./node_modules/.bin/tsc && ./node_modules/.bin/vite build
+RUN npm run build
 
 FROM nginx:alpine AS runner
 
