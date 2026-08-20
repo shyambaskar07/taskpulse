@@ -21,9 +21,9 @@ graph TD
 
     DB[(" POSTGRESQL DATABASE<br/>(Queues, Jobs, Executions, DLQ, Workers, Logs)")]:::dbLayer
 
-    Worker1["️ WORKER PROCESS NODE 1<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
-    Worker2["️ WORKER PROCESS NODE 2<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
-    WorkerN["️ WORKER PROCESS NODE N...<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
+    Worker1["WORKER PROCESS NODE 1<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
+    Worker2["WORKER PROCESS NODE 2<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
+    WorkerN["WORKER PROCESS NODE N...<br/>(Atomic Claim & Sandbox Execution)"]:::workerLayer
 
     Client -->|REST HTTP / WebSockets| APIServer
     APIServer -->|Pool Connections| DB

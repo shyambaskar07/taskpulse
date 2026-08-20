@@ -14,22 +14,22 @@ graph TD
     classDef workerEntity fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#fff;
     classDef dlqEntity fill:#881337,stroke:#f43f5e,stroke-width:2px,color:#fff;
 
-    Users[" USERS<br/>(id, email, password_hash, role)"]:::userEntity
-    Organizations[" ORGANIZATIONS<br/>(id, name)"]:::userEntity
-    Projects[" PROJECTS<br/>(id, org_id, name, api_key)"]:::userEntity
+    Users["USERS<br/>(id, email, password_hash, role)"]:::userEntity
+    Organizations["ORGANIZATIONS<br/>(id, name)"]:::userEntity
+    Projects["PROJECTS<br/>(id, org_id, name, api_key)"]:::userEntity
     
-    RetryPolicies["️ RETRY_POLICIES<br/>(id, strategy, max_retries, base_delay_ms)"]:::coreEntity
-    Queues[" QUEUES<br/>(id, project_id, name, priority, max_concurrency)"]:::coreEntity
+    RetryPolicies["RETRY_POLICIES<br/>(id, strategy, max_retries, base_delay_ms)"]:::coreEntity
+    Queues["QUEUES<br/>(id, project_id, name, priority, max_concurrency)"]:::coreEntity
     
-    Jobs[" JOBS<br/>(id, queue_id, parent_job_id, status, run_at, attempts)"]:::jobEntity
-    JobDeps[" JOB_DEPENDENCIES<br/>(id, parent_job_id, child_job_id, status)"]:::jobEntity
-    SchedJobs[" SCHEDULED_JOBS<br/>(id, queue_id, cron_expression, next_run_at)"]:::jobEntity
+    Jobs["JOBS<br/>(id, queue_id, parent_job_id, status, run_at, attempts)"]:::jobEntity
+    JobDeps["JOB_DEPENDENCIES<br/>(id, parent_job_id, child_job_id, status)"]:::jobEntity
+    SchedJobs["SCHEDULED_JOBS<br/>(id, queue_id, cron_expression, next_run_at)"]:::jobEntity
     
-    Executions[" JOB_EXECUTIONS<br/>(id, job_id, worker_id, status, duration_ms)"]:::jobEntity
-    JobLogs[" JOB_LOGS<br/>(id, job_id, execution_id, level, message)"]:::jobEntity
-    DLQ[" DEAD_LETTER_QUEUE<br/>(id, job_id, queue_id, final_error, ai_summary)"]:::dlqEntity
+    Executions["JOB_EXECUTIONS<br/>(id, job_id, worker_id, status, duration_ms)"]:::jobEntity
+    JobLogs["JOB_LOGS<br/>(id, job_id, execution_id, level, message)"]:::jobEntity
+    DLQ["DEAD_LETTER_QUEUE<br/>(id, job_id, queue_id, final_error, ai_summary)"]:::dlqEntity
     
-    Workers["️ WORKERS<br/>(id, hostname, pid, concurrency_limit, status)"]:::workerEntity
+    Workers["WORKERS<br/>(id, hostname, pid, concurrency_limit, status)"]:::workerEntity
     Heartbeats[" WORKER_HEARTBEATS<br/>(id, worker_id, cpu_percent, memory_mb)"]:::workerEntity
 
     %% Relationships

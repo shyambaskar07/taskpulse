@@ -1,6 +1,6 @@
 # TaskPulse - Distributed Job Scheduling Platform
 
-**TaskPulse** is a production-inspired, high-throughput distributed job scheduling platform capable of executing asynchronous background tasks across worker nodes with atomic queue locking, configurable retry policies, dead-letter queues, real-time WebSocket telemetry, and a web dashboard.
+TaskPulse is a production-inspired, high-throughput distributed job scheduling platform capable of executing asynchronous background tasks across worker nodes with atomic queue locking, configurable retry policies, dead-letter queues, real-time WebSocket telemetry, and a web dashboard.
 
 ---
 
@@ -19,46 +19,21 @@
   - Automatic retry backoff strategies (`FIXED`, `LINEAR`, `EXPONENTIAL` with full jitter).
   - Worker heartbeats & stranded job recovery for dead/crashed worker processes.
   - Graceful shutdown (`SIGINT`/`SIGTERM`) draining active tasks up to timeout.
-- **Dead Letter Queue (DLQ) & AI Diagnostics**:
+- **Dead Letter Queue (DLQ) & Failure Diagnostics**:
   - Automatically isolates jobs exceeding maximum retries.
-  - AI failure summary generator analyzing stack traces, error messages, and payload to recommend fixes.
+  - Failure summary generator analyzing stack traces, error messages, and payload to recommend fixes.
 - **Real-Time Web Dashboard**:
   - React + Vite + Tailwind CSS glassmorphism UI.
   - WebSocket live metrics streaming for real-time throughput charts, worker cluster status, and job explorer updates.
 
 ---
 
-## Public Cloud Deployment Guide (1-Click Free Hosting)
-
-Having a live public deployment link (e.g. `https://taskpulse.onrender.com`) is a huge advantage for project evaluations.
-
-### Option A: Render.com (Recommended - 1-Click Blueprint)
-The repository includes a production-ready Infrastructure-as-Code file [`render.yaml`](file:///c:/Codity/render.yaml).
-
-1. Push this repository to **GitHub**.
-2. Sign in to **[Render.com](https://render.com)**.
-3. Click **New +** $\rightarrow$ **Blueprint**.
-4. Connect your GitHub repository.
-5. Render will automatically provision:
-   - Free PostgreSQL Database (`taskpulse-db`)
-   - Free REST API & WebSockets Web Service (`taskpulse-backend`)
-   - Free Background Worker Service (`taskpulse-worker`)
-   - Free Static Web Dashboard (`taskpulse-frontend`)
-
----
-
-### Option B: Vercel + Railway / Supabase
-- **Frontend**: Deploy `/frontend` to **[Vercel](https://vercel.com)** (configured via [`frontend/vercel.json`](file:///c:/Codity/frontend/vercel.json)).
-- **Backend & DB**: Deploy `/backend` and PostgreSQL to **[Railway.app](https://railway.app)** or **[Supabase](https://supabase.com)**.
-
----
-
-## Directory Structure
+## Repository Structure
 
 ```
-c:\Codity\
-├── render.yaml                 # 1-Click Render.com Cloud Infrastructure Blueprint
-├── docker-compose.yml          # Local multi-container Docker orchestration
+├── docker-compose.yml          # Multi-container orchestration (DB, API, Worker, Web UI)
+├── render.yaml                 # Infrastructure-as-Code Cloud Deployment Blueprint
+├── taskpulse-cli.js            # Command Line Admin Tool
 ├── backend/
 │   ├── Dockerfile              # Production Docker container for Backend API
 │   ├── src/
@@ -81,56 +56,84 @@ c:\Codity\
 │   │   └── main.tsx
 │   ├── package.json
 │   └── vite.config.ts
-├── docs/
-│   ├── ARCHITECTURE.md         # System Architecture & Mermaid Diagrams
-│   ├── ER_DIAGRAM.md           # Entity Relationship Diagram & Schema Spec
-│   ├── API_DOCUMENTATION.md    # OpenAPI / REST API Endpoint Reference
-│   └── DESIGN_DECISIONS.md     # Technical trade-offs document
-├── taskpulse-cli.js            # Command Line Admin Tool
-└── README.md
+└── docs/
+    ├── ARCHITECTURE.md         # System Architecture & Topology
+    ├── ER_DIAGRAM.md           # Database Schema & ER Diagram
+    ├── API_DOCUMENTATION.md    # OpenAPI / REST API Endpoint Reference
+    └── DESIGN_DECISIONS.md     # Technical trade-offs document
 ```
 
 ---
 
-## Local Docker & Development Setup
+## Quickstart & Deployment
 
-### Local Docker Compose Deployment
+### 1. Docker Compose (Recommended)
+
+Run the entire platform (PostgreSQL database, Backend REST/WS API server, Worker process, and Web Dashboard) with a single command:
+
 ```bash
 docker-compose up --build
 ```
 
-### Manual Development Setup
+- **Web Dashboard**: `http://localhost:3000` (or `http://localhost:80`)
+- **Backend REST & WebSockets**: `http://localhost:4000`
+- **PostgreSQL Database**: `localhost:5432`
+
+---
+
+### 2. Manual Local Development
+
+#### Prerequisites
+- **Node.js**: v18+ or v22+
+- **PostgreSQL**: Local or remote instance listening on port 5432.
+
+#### Step 1: Configure Environment Variables
+In `backend/.env`:
+```env
+PORT=4000
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/taskpulse
+```
+
+#### Step 2: Start Backend REST & WebSocket Server
 ```bash
-# 1. Backend REST Server
 cd backend
 npm install
 npm run dev
+```
 
-# 2. Frontend Web Dashboard
+#### Step 3: Start Frontend Web Dashboard
+```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+---
+
+### 3. Cloud Deployment (Render / Railway / Vercel)
+
+- **Render.com**: Connect repository to Render. It automatically reads `render.yaml` to provision PostgreSQL, Backend API, Worker, and Web UI.
+- **Vercel**: Deploy `frontend/` directory to Vercel using `frontend/vercel.json`.
 
 ---
 
 ## Running Automated Tests
 
 ```bash
-# Backend Automated Tests (Including 100,000+ Corner Cases)
+# Backend Test Suite (Includes 100,000+ corner-case property tests)
 cd backend
 npm run test
 
-# Frontend Automated Tests
+# Frontend Test Suite
 cd frontend
 npm run test
 ```
 
 ---
 
-## Deliverables Documentation
+## Technical Documentation
 
-- [ARCHITECTURE.md](file:///c:/Codity/docs/ARCHITECTURE.md) - System Architecture & Topology
-- [ER_DIAGRAM.md](file:///c:/Codity/docs/ER_DIAGRAM.md) - Database Schema & ER Diagram
-- [API_DOCUMENTATION.md](file:///c:/Codity/docs/API_DOCUMENTATION.md) - REST API Spec
-- [DESIGN_DECISIONS.md](file:///c:/Codity/docs/DESIGN_DECISIONS.md) - Major Trade-Offs & Technical Rationale
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) - System Architecture & Sequence Diagrams
+- [ER_DIAGRAM.md](docs/ER_DIAGRAM.md) - Relational Database Schema & ER Diagram
+- [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) - REST API Endpoint Reference
+- [DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md) - Technical Trade-Offs & Architecture Rationale
