@@ -1,18 +1,21 @@
 import { Pool, PoolClient } from 'pg';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
-import { generateId } from '../utils/idGenerator';
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL || 
+const connectionString = 
+  process.env.DATABASE_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.POSTGRESQL_URL ||
+  process.env.DATABASE_PUBLIC_URL ||
   `postgres://${process.env.POSTGRES_USER || 'postgres'}:${process.env.POSTGRES_PASSWORD || 'postgres'}@${process.env.POSTGRES_HOST || 'localhost'}:${process.env.POSTGRES_PORT || '5432'}/${process.env.POSTGRES_DB || 'taskpulse'}`;
 
 export const pool = new Pool({
   connectionString,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
+  connectionTimeoutMillis: 10000,
 });
 
 export async function query(text: string, params?: any[]) {
