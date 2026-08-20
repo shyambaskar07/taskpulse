@@ -3,9 +3,11 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY package*.json ./
 RUN npm install
-RUN npm run build
+
+COPY . .
+RUN ./node_modules/.bin/tsc && ./node_modules/.bin/vite build
 
 FROM nginx:alpine AS runner
 
