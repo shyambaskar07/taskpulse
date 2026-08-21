@@ -1,3 +1,4 @@
+import { apiFetch } from '../utils/api';
 import React, { useState } from 'react';
 import { Job, Queue } from '../types';
 import { Search, Filter, RefreshCw, Play, Eye, FileText, CheckCircle2, Clock, AlertCircle } from 'lucide-react';
@@ -17,7 +18,7 @@ export const JobExplorer: React.FC<JobExplorerProps> = ({ jobs, queues, onRefres
 
   const fetchJobDetails = async (jobId: string) => {
     try {
-      const res = await fetch(`/api/jobs/${jobId}`);
+      const res = await apiFetch(`/api/jobs/${jobId}`);
       if (res.ok) {
         const data = await res.json();
         setJobDetails(data);
@@ -30,7 +31,7 @@ export const JobExplorer: React.FC<JobExplorerProps> = ({ jobs, queues, onRefres
 
   const handleRetryJob = async (jobId: string) => {
     try {
-      await fetch(`/api/jobs/${jobId}/retry`, { method: 'POST' });
+      await apiFetch(`/api/jobs/${jobId}/retry`, { method: 'POST' });
       onRefresh();
       if (selectedJobId === jobId) {
         fetchJobDetails(jobId);

@@ -18,13 +18,14 @@ export function App() {
   const [metrics, setMetrics] = useState<MetricsSummary | null>(null);
 
   const fetchAllData = useCallback(async () => {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
     try {
       const [qRes, jRes, wRes, dRes, mRes] = await Promise.all([
-        fetch('/api/queues'),
-        fetch('/api/jobs?limit=50'),
-        fetch('/api/workers'),
-        fetch('/api/dlq'),
-        fetch('/api/metrics')
+        fetch(`${apiUrl}/api/queues`),
+        fetch(`${apiUrl}/api/jobs?limit=50`),
+        fetch(`${apiUrl}/api/workers`),
+        fetch(`${apiUrl}/api/dlq`),
+        fetch(`${apiUrl}/api/metrics`)
       ]);
 
       if (qRes.ok) setQueues((await qRes.json()).queues || []);
@@ -43,7 +44,8 @@ export function App() {
 
     // Connect to WebSocket stream
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${protocol}//${window.location.host}/ws`;
+    const defaultWs = `${protocol}//${window.location.host}/ws`;
+    const wsUrl = import.meta.env.VITE_WS_URL || defaultWs;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => setIsWsConnected(true);

@@ -1,3 +1,4 @@
+import { apiFetch } from '../utils/api';
 import React, { useState } from 'react';
 import { Queue } from '../types';
 import { RefreshCw, Play, Clock, Repeat, Layers, GitBranch, Zap, CheckCircle2 } from 'lucide-react';
@@ -55,7 +56,7 @@ export const APITester: React.FC<APITesterProps> = ({ queues, onRefresh }) => {
         ];
       } else if (presetType === 'DAG') {
         // Step 1: Submit parent job
-        const parentRes = await fetch('/api/jobs', {
+        const parentRes = await apiFetch('/api/jobs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -68,7 +69,7 @@ export const APITester: React.FC<APITesterProps> = ({ queues, onRefresh }) => {
         const parentData = await parentRes.json();
 
         // Step 2: Submit child job dependent on parent
-        await fetch('/api/jobs', {
+        await apiFetch('/api/jobs', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -85,7 +86,7 @@ export const APITester: React.FC<APITesterProps> = ({ queues, onRefresh }) => {
         return;
       }
 
-      const res = await fetch('/api/jobs', {
+      const res = await apiFetch('/api/jobs', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

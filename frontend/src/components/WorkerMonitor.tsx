@@ -1,3 +1,4 @@
+import { apiFetch } from '../utils/api';
 import React from 'react';
 import { WorkerNode } from '../types';
 import { Cpu, HardDrive, Activity, AlertTriangle, ShieldCheck, Power } from 'lucide-react';
@@ -11,7 +12,7 @@ export const WorkerMonitor: React.FC<WorkerMonitorProps> = ({ workers, onRefresh
   const handleDrainWorker = async (workerId: string) => {
     if (!confirm(`Are you sure you want to drain worker ${workerId}?`)) return;
     try {
-      await fetch(`/api/workers/${workerId}/drain`, { method: 'POST' });
+      await apiFetch(`/api/workers/${workerId}/drain`, { method: 'POST' });
       onRefresh();
     } catch (err) {
       console.error('Failed to drain worker:', err);

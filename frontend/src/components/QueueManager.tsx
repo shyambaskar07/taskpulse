@@ -1,3 +1,4 @@
+import { apiFetch } from '../utils/api';
 import React, { useState } from 'react';
 import { Queue } from '../types';
 import { Plus, Pause, Play, Trash2, Sliders, Server, Shield } from 'lucide-react';
@@ -18,7 +19,7 @@ export const QueueManager: React.FC<QueueManagerProps> = ({ queues, onRefresh })
     if (!newQueueName) return;
 
     try {
-      const res = await fetch('/api/queues', {
+      const res = await apiFetch('/api/queues', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -40,7 +41,7 @@ export const QueueManager: React.FC<QueueManagerProps> = ({ queues, onRefresh })
 
   const handleTogglePause = async (queue: Queue) => {
     try {
-      await fetch(`/api/queues/${queue.id}`, {
+      await apiFetch(`/api/queues/${queue.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isPaused: queue.is_paused ? false : true }),
@@ -54,7 +55,7 @@ export const QueueManager: React.FC<QueueManagerProps> = ({ queues, onRefresh })
   const handlePurgeQueue = async (queueId: string) => {
     if (!confirm('Are you sure you want to purge all pending jobs in this queue?')) return;
     try {
-      await fetch(`/api/queues/${queueId}/purge`, { method: 'POST' });
+      await apiFetch(`/api/queues/${queueId}/purge`, { method: 'POST' });
       onRefresh();
     } catch (err) {
       console.error('Failed to purge queue:', err);

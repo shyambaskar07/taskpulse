@@ -1,3 +1,4 @@
+import { apiFetch } from '../utils/api';
 import { useState } from 'react';
 import { DLQEntry } from '../types';
 import { ShieldCheck, RefreshCw, Sparkles, AlertOctagon, Trash2, Eye } from 'lucide-react';
@@ -13,7 +14,7 @@ export const DLQInspector: React.FC<DLQInspectorProps> = ({ dlqEntries, onRefres
 
   const handleRetryDLQ = async (id: string) => {
     try {
-      await fetch(`/api/dlq/${id}/retry`, { method: 'POST' });
+      await apiFetch(`/api/dlq/${id}/retry`, { method: 'POST' });
       onRefresh();
       if (selectedEntry?.id === id) setSelectedEntry(null);
     } catch (err) {
@@ -23,7 +24,7 @@ export const DLQInspector: React.FC<DLQInspectorProps> = ({ dlqEntries, onRefres
 
   const handleDiscardDLQ = async (id: string) => {
     try {
-      await fetch(`/api/dlq/${id}`, { method: 'DELETE' });
+      await apiFetch(`/api/dlq/${id}`, { method: 'DELETE' });
       onRefresh();
       if (selectedEntry?.id === id) setSelectedEntry(null);
     } catch (err) {
@@ -34,7 +35,7 @@ export const DLQInspector: React.FC<DLQInspectorProps> = ({ dlqEntries, onRefres
   const handleGenerateAiSummary = async (id: string) => {
     setLoadingAi(true);
     try {
-      const res = await fetch(`/api/dlq/${id}/ai-summary`, { method: 'POST' });
+      const res = await apiFetch(`/api/dlq/${id}/ai-summary`, { method: 'POST' });
       if (res.ok) {
         const data = await res.json();
         if (selectedEntry && selectedEntry.id === id) {
