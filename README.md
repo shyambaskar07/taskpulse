@@ -83,6 +83,8 @@ docker-compose up --build
 
 ### 2. Manual Local Development
 
+*(Note: `node_modules` folders have been omitted from this submission to keep the ZIP file small. Please run `npm install` as directed below to download them).*
+
 #### Prerequisites
 - **Node.js**: v18+ or v22+
 - **PostgreSQL**: Local or remote instance listening on port 5432.
